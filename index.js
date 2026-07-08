@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { conectaDB,supabase } from './config/supabase.js';
 import AuthRoutes from './routes/Auth.js';
 import UserRoutes from './routes/User.js';
+import heladosRoutes from './routes/helados.js';
 
 //CARGAR VARIABLES
 dotenv.config();
@@ -27,6 +28,10 @@ app.get('/',(req,res)=>{
 app.use('/auth',AuthRoutes);
 //RUTAS DE USUARIOS
 app.use('/users',UserRoutes);
+//Ruta de helados
+app.use('/api',heladosRoutes);
+
+
 
 
 //CONFIGURAMOS EL PUERTO 
