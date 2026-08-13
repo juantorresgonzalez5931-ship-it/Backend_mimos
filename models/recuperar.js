@@ -22,10 +22,17 @@ export const crearCodigoRecuperacion = async (usuarioId, codigo) => {
     .from('recovery_codes')
     .select('*')
     .eq('usuario_id', usuarioId)
-    .eq('codigo', codigo)
-    .eq('usado', false)
-    .gt('expiret_at', new Date().toISOString)
     .single();
+
+console.log(data);
+console.log(error);
+
+return { data, error };
+
+    console.log(data);
+    console.log(error);
+
+
     return { data, error };
  };
 

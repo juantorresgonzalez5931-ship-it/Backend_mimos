@@ -1,6 +1,7 @@
 import {crearCodigoRecuperacion, marcarComoUsado, obtenerCodigoValido} from '../models/recuperar.js';
-import { obtenerPorEmail } from '../models/User.js';
+import { obtenerPorEmail, actualizarUsuario } from '../models/User.js';
 import nodemailer from 'nodemailer';
+import bcrypt from 'bcrypt';
 
 // configuramos el transporte nodemailer
 
@@ -73,11 +74,13 @@ export const verifyCode= async (req, res)=>{
 
     //verificamos las entradas
     if (!email || !codigo || !nuevaContrasena){
-        return res.status (400).json ({error:'todos ls campos son requeridos'});
+        return res.status (400).json ({error:'todos los campos son requeridos'});
     }
 
     //verificamos el usuario esta en la base de datos 
     const {data:usuario}=await obtenerPorEmail(email);
+    console.log(usuario);
+
     if (!usuario){
         return res.status (404).json ({error:'usuario no encontrado'});
     }
@@ -92,10 +95,10 @@ export const verifyCode= async (req, res)=>{
     const hashedPassword= await bcrypt.hash(nuevaContrasena, 10);
 
     //actualizar la contraseña del usuario en la base de datos 
-    const {error: Updateerror}= await actualizarUsuario(
+    const {error: UpdateError}= await actualizarUsuario(
         usuario.id, {password: hashedPassword}
     ) 
-    if (updateError) throw updateError;
+    if (UpdateError) throw UpdateError;
     //marcamos el codigo como usado
     await marcarComoUsado (codigoRecuperacion.id);
 

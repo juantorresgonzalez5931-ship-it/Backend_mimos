@@ -66,39 +66,105 @@ export const registrarUsuario = async (req, res)=>{
 
 
 //crear login
+// export const loginUsuario = async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
+
+//         if (!email || !password) {
+//             return res.status(400).json({
+//                 error: 'faltan datos de login'
+//             });
+//         }
+
+//         const { data, error } = await supabase.auth.signInWithPassword({
+//             email,
+//             password
+//         });
+
+//         if (error || !data?.session) {
+//             return res.status(400).json({
+//                 error: error?.message || 'credenciales incorrectas'
+//             });
+//         }
+
+//         return res.status(200).json({
+//             message: 'login exitoso',
+//             token: data.session.access_token,
+//             usuario: {
+//                 id: data.user.id,
+//                 nombre: data.user.user_metadata?.nombre || data.user.email,
+//                 email: data.user.email,
+//                 rol: 'usuario'
+//             }
+//         });
+//     } catch (error) {
+//         console.error('Error en el login:', error);
+//         return res.status(500).json({
+//             error: error.message
+//         });
+//     }
+// };
+
 export const loginUsuario = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        // 1. Validar que lleguen los datos
         if (!email || !password) {
             return res.status(400).json({
-                error: 'faltan datos de login'
+                error: 'Faltan datos de login'
             });
         }
 
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
+        // 2. Buscar el usuario por email
+        const { data: usuario, error } = await obtenerPorEmail(email);
 
-        if (error || !data?.session) {
-            return res.status(400).json({
-                error: error?.message || 'credenciales incorrectas'
+        if (error || !usuario) {
+            return res.status(401).json({
+                error: 'Credenciales incorrectas'
             });
         }
 
+        // 3. Comparar la contraseña
+        const passwordCorrecta = await bcrypt.compare(
+            password,
+            usuario.password
+        );
+
+        if (!passwordCorrecta) {
+            return res.status(401).json({
+                error: 'Credenciales incorrectas'
+            });
+        }
+
+        // 4. Crear el token JWT
+        const token = jwt.sign(
+            {
+                id: usuario.id,
+                email: usuario.email,
+                rol: usuario.rol
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: '2h'
+            }
+        );
+
+        // 5. Responder al Flutter
         return res.status(200).json({
-            message: 'login exitoso',
-            token: data.session.access_token,
+            message: 'Login exitoso',
+            token: token,
             usuario: {
-                id: data.user.id,
-                nombre: data.user.user_metadata?.nombre || data.user.email,
-                email: data.user.email,
-                rol: 'usuario'
+                id: usuario.id,
+                nombre: usuario.nombre,
+                email: usuario.email,
+                rol: usuario.rol
             }
         });
+
     } catch (error) {
-        console.error('Error en el login:', error);
+        console.error('❌ Error en el login:', error);
+
         return res.status(500).json({
             error: error.message
         });

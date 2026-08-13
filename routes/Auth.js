@@ -10,7 +10,7 @@ router.post('/login', loginUsuario);
 
 //Ruta para recuperar contraseña
 router.post('/forgot-password', forgotPassword);
-router.post ('/verify-code', verifyCode);
+router.post('/verify-code', verifyCode);
 
 export default router;
 
