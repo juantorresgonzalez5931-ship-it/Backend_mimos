@@ -43,16 +43,16 @@ export const getUsuariosporId = async (req,res) => {
 //actualizar usuario por id
 export const putUsuariosporId = async (req, res) => {
         const { id } = req.params;
-        const { nombre, email, contrasena, rol } = req.body;
+        const { nombre, email, password, rol } = req.body;
         
         //Validar datos
-        if (!nombre || !email || !contrasena || !rol) {
+        if (!nombre || !email || !password || !rol) {
             return res.status(400).json({ error: 'Faltan campos obligatorios' });
         }
 
         try{
-            const hashedcontrasena = await bcrypt.hash(contrasena, 10);
-            const { data, error } = await actualizarUsuario(id, {nombre, email, contrasena: hashedcontrasena, rol});
+            const hashedpassword = await bcrypt.hash(password, 10);
+            const { data, error } = await actualizarUsuario(id, {nombre, email, password: hashedpassword, rol});
         
 
         if (error) {

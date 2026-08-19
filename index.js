@@ -37,7 +37,13 @@ app.use('/api',heladosRoutes);
 app.use('/api',pedidosRoutes);
 
 
-
+// Manejador de errores global (SIEMPRE al final, después de las rutas)
+app.use((err, req, res, next) => {
+    console.error('Error capturado:', err);
+    res.status(err.status || 500).json({
+        error: err.message || 'Error interno del servidor'
+    });
+});
 
 //CONFIGURAMOS EL PUERTO 
 const PORT = 3000;
